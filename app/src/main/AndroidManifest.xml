@@ -3,6 +3,7 @@
     package="com.gamecodeschool.mylogicofpermission">
     <uses-permission android:name="android.permission.BLUETOOTH"/>
     <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT"/>
 
     <application
         android:allowBackup="true"

@@ -24,9 +24,10 @@ class MainActivity : AppCompatActivity() {
     private fun cekForPermision() {
         mLayout = findViewById(R.id.rootLayout)
         //if (ActivityCompat.checkSelfPermission(this,Manifest.permission.BLUETOOTH)
-        if (ActivityCompat.checkSelfPermission(this,Manifest.permission.CAMERA)
+        //if (ActivityCompat.checkSelfPermission(this,Manifest.permission.CAMERA)
+        if (ActivityCompat.checkSelfPermission(this,Manifest.permission.BLUETOOTH_CONNECT)
             ==PackageManager.PERMISSION_GRANTED){
-            Snackbar.make(mLayout,"Sudah diberikan izin Bluetooth", Snackbar.LENGTH_LONG).show()
+            Snackbar.make(mLayout,"Sudah diberikan izin Bluetooth Connect", Snackbar.LENGTH_LONG).show()
         }
         else{
             Snackbar.make(mLayout,"Belum diberikan izin akses",Snackbar.LENGTH_LONG).show()
@@ -37,15 +38,15 @@ class MainActivity : AppCompatActivity() {
     private fun requestBluetoothAdminPermission() {
         if(ActivityCompat.shouldShowRequestPermissionRationale(
                 this,
-                Manifest.permission.CAMERA
+                Manifest.permission.BLUETOOTH_CONNECT
 
             )){
                 ActivityCompat.requestPermissions(
-                    this@MainActivity, arrayOf((Manifest.permission.CAMERA)),
+                    this@MainActivity, arrayOf((Manifest.permission.BLUETOOTH_CONNECT)),
                     PERMISSION_REQUEST_BLUETOOTH_ADMIN
                 )
         }else{    ActivityCompat.requestPermissions(
-            this@MainActivity, arrayOf((Manifest.permission.CAMERA)),
+            this@MainActivity, arrayOf((Manifest.permission.BLUETOOTH_CONNECT)),
             PERMISSION_REQUEST_BLUETOOTH_ADMIN
         )
 
