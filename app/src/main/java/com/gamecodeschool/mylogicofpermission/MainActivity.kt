@@ -2,23 +2,32 @@ package com.gamecodeschool.mylogicofpermission
 
 import android.Manifest
 import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothManager
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.View
-import android.widget.Button
-import android.widget.Toast
+import android.widget.*
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import com.google.android.material.snackbar.Snackbar
 
 class MainActivity : AppCompatActivity() {
     lateinit var bAdapter :BluetoothAdapter
+    //lateinit var lAdapter: BluetoothAdapter
     private val REQUEST_CODE_ENABLE_BT:Int =1
     lateinit var mLayout :View
+    private lateinit var m_pairedDevices: Set<BluetoothDevice>
+
+
+    @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -27,41 +36,142 @@ class MainActivity : AppCompatActivity() {
         val btnAdminPermit =  findViewById<Button>(R.id.btnBtAdminPermit)
         val btnBtScanPermit = findViewById<Button>(R.id.btnBtScanPermit)
         val turnOnBtn= findViewById<Button>(R.id.turnOnBtn)
+        val cekBtExist= findViewById<Button>(R.id.cekBtExist)
+        val turnOffBT=findViewById<Button>(R.id.turnOffBT)
+        val select_device_refresh=findViewById<Button>(R.id.select_device_refresh)
+        val discoverBT = findViewById<Button>(R.id.discoverBT)
 
         //init bluetooth
 
         bAdapter = BluetoothAdapter.getDefaultAdapter()
 
-//        val bluetoothManager = this.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
+        val bluetoothManager = this.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
 //        bluetoothManager.getAdapter()
-
+        cekBtExist.setOnClickListener{isBtExist()}
         btnBluetooth.setOnClickListener { cekBtPermission() }
         btnConnPermit.setOnClickListener { cekForPermision() }
         btnAdminPermit.setOnClickListener { cekAdminBTPermission() }
         btnBtScanPermit.setOnClickListener { cekScanBTPermission() }
+        turnOnBtn.setOnClickListener {hidupkanBT()}
+        turnOffBT.setOnClickListener{matikanBT()}
+        discoverBT.setOnClickListener{cariBT()}
 
-        turnOnBtn.setOnClickListener {
-            if (bAdapter.isEnabled){
-                Toast.makeText(this,"already on", Toast.LENGTH_LONG).show()
-            }
-            else{
-                //cekForPermision()
-                val intent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
-                startActivityForResult(intent,REQUEST_CODE_ENABLE_BT)
-            }
+        select_device_refresh.setOnClickListener{ cobapairing() }
 
+        //val bluetoothManager=applicationContext.getSystemService(BLUETOOTH_SERVICE) as BluetoothManager
+
+    }
+
+    private fun cariBT() {
+
+        // Create a BroadcastReceiver for ACTION_FOUND.
+        //private val receiver = object : BroadcastReceiver() {
+        val receiver = object : BroadcastReceiver() {
+
+            override fun onReceive(context: Context, intent: Intent) {
+                val action: String? = intent.action
+                when(action) {
+                    BluetoothDevice.ACTION_FOUND -> {
+                        // Discovery has found a device. Get the BluetoothDevice
+                        // object and its info from the Intent.
+                        val device: BluetoothDevice? =
+                            intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)
+                        val deviceName = device?.name
+                        val deviceHardwareAddress = device?.address // MAC address
+                    }
+                }
+            }
+        }
+        // Register for broadcasts when a device is discovered.
+        val filter = IntentFilter(BluetoothDevice.ACTION_FOUND)
+        registerReceiver(receiver, filter)
+    }
+
+    private fun cobapairing() {
+        //var pairedDevices=bAdapter.bondedDevices
+        var pairedDevices:Set<BluetoothDevice>?=bAdapter?.bondedDevices
+        var data:StringBuffer=StringBuffer()
+        //for (device:BluetoothDevice in pairedDevices)
+        if (pairedDevices != null) {
+            for (device:BluetoothDevice in pairedDevices)
+            {
+                data.append("Device Name="+device.name+"Device Address="+device.address)
+                    //device name adalah nama devicenya  --- device address adalaha MAC Addressnya
+            }
+        }
+        if(data.isEmpty()){
+            Toast.makeText(this,"Bluetooth Devices is not paired  ",Toast.LENGTH_SHORT).show()
+        }else{
+            Toast.makeText(this,data,Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun pairedDeviceList() {
+        //m_pairedDevices = m_bluetoothAdapter!!.bondedDevices
+        m_pairedDevices = bAdapter.bondedDevices
+        val list : ArrayList<BluetoothDevice> = ArrayList()
+
+        if (!m_pairedDevices.isEmpty()) {
+            for (device: BluetoothDevice in m_pairedDevices) {
+                list.add(device)
+                Log.i("device", ""+device)
+            }
+        } else {
+            Toast.makeText(this,"no paired bluetooth devices found", Toast.LENGTH_LONG).show()
         }
 
+        val adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, list)
+        val select_device_list = findViewById<ListView>(R.id.list_item)
+        select_device_list.adapter = adapter
+        select_device_list.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
+            val device: BluetoothDevice = list[position]
+            val address: String = device.address
+
+            //val intent = Intent(this, ControlActivity::class.java)
+            //intent.putExtra(EXTRA_ADDRESS, address)
+            //startActivity(intent)
+        }
+    }
+
+    private fun matikanBT() {
+
+            bAdapter.disable()
+            Toast.makeText(this,"Turn Off Bluetooth", Toast.LENGTH_LONG).show()
+    }
+
+
+    private fun hidupkanBT() {
+        if (bAdapter.isEnabled){
+            Toast.makeText(this,"already on", Toast.LENGTH_LONG).show()
+        }
+        else{
+            //cekForPermision()
+            val intent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
+            startActivityForResult(intent,REQUEST_CODE_ENABLE_BT)
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.M)
+    private fun isBtExist() {
+        val bluetoothManager: BluetoothManager = getSystemService(BluetoothManager::class.java)
+        val bluetoothAdapter: BluetoothAdapter? = bluetoothManager.getAdapter()
+        if (bluetoothAdapter == null) {
+            // Device doesn't support Bluetooth
+            Snackbar.make(mLayout,"sepertinya hp nya tidak punya Bluetooth",Snackbar.LENGTH_LONG).show()
+        }
+        else{
+            Snackbar.make(mLayout,"Hp keren punya Bluetooth",Snackbar.LENGTH_LONG).show()
+        }
     }
 
     private fun cekScanBTPermission() {
         mLayout= findViewById(R.id.rootLayout)
         if (ActivityCompat.checkSelfPermission(this,Manifest.permission.BLUETOOTH_SCAN)
             ==PackageManager.PERMISSION_GRANTED){
-            Snackbar.make(mLayout,"Sudah diberikan izin akses Admin Bluetooth", Snackbar.LENGTH_LONG).show()
+            Snackbar.make(mLayout,"Sudah diberikan izin akses Scan Bluetooth", Snackbar.LENGTH_LONG).show()
         }
         else{
-            Snackbar.make(mLayout,"Belum diberikan izin akses Admin Bluetooth",Snackbar.LENGTH_LONG).show()
+            Snackbar.make(mLayout,"Belum diberikan izin akses Scan Bluetooth",Snackbar.LENGTH_LONG).show()
             requestScanBTPermission()
         }
     }
@@ -190,5 +300,8 @@ class MainActivity : AppCompatActivity() {
         private const val PERMISSION_REQUEST_BLUETOOTH_ADMIN = 0
         private const val PERMISSION_REQUEST_BLUETOOTH_CONNECT = 20
         private const val PERMISSION_REQUEST_BLUETOOTH = 10
+        val EXTRA_ADDRESS: String = "Device_address"
     }
+
+
 }
