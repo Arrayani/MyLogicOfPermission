@@ -4,4 +4,6 @@
     <string name="on">On</string>
     <string name="off">Off</string>
     <string name="disconnect">Disconnect</string>
+    <string name="bluetooh_connect_required">Bluetooth Connect access is required to use printer bluetooth.</string>
+    <string name="ok">OK</string>
 </resources>

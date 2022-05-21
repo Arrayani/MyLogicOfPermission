@@ -50,7 +50,7 @@ class MainActivity : AppCompatActivity() {
         cekBtExist.setOnClickListener{//isBtExist()
             testing()}
         btnBluetooth.setOnClickListener { cekBtPermission() }
-        btnConnPermit.setOnClickListener { cekForPermision() }
+        btnConnPermit.setOnClickListener { cekForBTConPermision() }
         btnAdminPermit.setOnClickListener { cekAdminBTPermission() }
         btnBtScanPermit.setOnClickListener { cekScanBTPermission() }
         turnOnBtn.setOnClickListener {hidupkanBT()}
@@ -285,19 +285,29 @@ private fun testing(){
 
 
 
-    private fun cekForPermision() {
-        mLayout = findViewById(R.id.rootLayout)
-        //if (ActivityCompat.checkSelfPermission(this,Manifest.permission.BLUETOOTH)
-        //if (ActivityCompat.checkSelfPermission(this,Manifest.permission.CAMERA)
-        if (ActivityCompat.checkSelfPermission(this,Manifest.permission.BLUETOOTH_CONNECT)
-            ==PackageManager.PERMISSION_GRANTED){
-            Snackbar.make(mLayout,"Sudah diberikan izin Bluetooth Connect", Snackbar.LENGTH_LONG).show()
+//    private fun cekForBTConPermision() {
+//        mLayout = findViewById(R.id.rootLayout)
+//        if (ActivityCompat.checkSelfPermission(this,Manifest.permission.BLUETOOTH_CONNECT)
+//            ==PackageManager.PERMISSION_GRANTED){
+//            Snackbar.make(mLayout,"Sudah diberikan izin Bluetooth Connect", Snackbar.LENGTH_LONG).show()
+//        }
+//        else{
+//            Snackbar.make(mLayout,"Belum diberikan izin akses",Snackbar.LENGTH_LONG).show()
+//            requestBluetoothAdminPermission()
+//        }
+//    }
+private fun cekForBTConPermision() {
+    mLayout = findViewById(R.id.rootLayout)
+    // Permission has not been granted and must be requested.
+    //if (ActivityCompat.shouldShowRequestPermissionRationaleCompat(Manifest.permission.CAMERA)) {
+    if (ActivityCompat.shouldShowRequestPermissionRationale(this,Manifest.permission.BLUETOOTH_CONNECT)) {
+        Snackbar.make(mLayout,"Bluetooth connect di butuhkan",Snackbar.LENGTH_LONG).show()
+
         }
-        else{
-            Snackbar.make(mLayout,"Belum diberikan izin akses",Snackbar.LENGTH_LONG).show()
-            requestBluetoothAdminPermission()
+            else {
+        Snackbar.make(mLayout,"Bluetooth Printer tidak dapat digunakan",Snackbar.LENGTH_LONG).show()
+            }
         }
-    }
 
     private fun requestBluetoothAdminPermission() {
         if(ActivityCompat.shouldShowRequestPermissionRationale(
